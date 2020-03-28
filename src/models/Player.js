@@ -2,7 +2,6 @@ class Player {
   constructor (data) {
     const { username, name } = data
     this.username = username
-    this.username = ''
     this.name = name
     this.cards = []
     this.isBot = false
