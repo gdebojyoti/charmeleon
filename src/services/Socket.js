@@ -1,14 +1,7 @@
 import SocketIo from 'socket.io'
 
 import Clients from '../models/Clients'
-import Messenger from './Messenger'
 import Engine from './Engine'
-
-// const db = {
-//   players: null,
-//   matches: null,
-//   currentMatches: null
-// }
 
 class Socket {
   constructor (server) {
@@ -27,7 +20,8 @@ class Socket {
   _onConnection (socket) {
     console.log('new connection...', socket.id, this.matches)
 
-    const matchId = ''
+    let matchId = null
+    let roomId = null
 
     // when a player disconnects, inform others
     socket.on('disconnect', function () {
@@ -35,36 +29,69 @@ class Socket {
       socket.in(matchId).emit('PLAYER_LEFT', {
         playerId: ''
       })
+
+      // // leave room
+      // socket.leave(roomId)
     })
 
-    socket.on('HOST_MATCH', hostMatch)
+    socket.on('HOST_MATCH', hostMatch.bind(this))
 
     // when a new player joins, inform everyone
-    socket.on('JOIN_MATCH', joinMatch)
+    socket.on('JOIN_MATCH', joinMatch.bind(this))
 
     // when host clicks 'start match' button
-    socket.on('START_MATCH', startMatch)
+    socket.on('START_MATCH', startMatch.bind(this))
 
-    function hostMatch (data) {
+    function hostMatch (data) { // data = { matchId, username }
       console.log('hosting match...', data)
-      const matchId = Engine.hostMatch(data)
-      socket.emit('MATCH_HOSTED', { matchId })
-      // Messenger.publish('HOST_MATCH', data)
+
+      // update match & room ID if player is hosting match
+      matchId = Engine.hostMatch(data)
+      roomId = `room-${matchId}`
+
+      // add player to room
+      socket.join(roomId)
+
+      // update client list
+      this.clients.update(data.username, socket.id)
+
+      // send message to socket client
+      socket.emit('MATCH_HOSTED', matchId)
     }
 
-    function joinMatch (data) {
-      console.log('joining match...', data)
+    function joinMatch (data) { // data = { matchId, username }
       const match = Engine.joinMatch(data)
       if (!match) {
         socket.emit('MATCH_JOIN_FAILED')
+        return
       }
 
+      // update match & room ID if player is joining match
+      matchId = data.matchId
+      roomId = `room-${matchId}`
+
+      // add player to room
+      socket.join(roomId)
+
+      // update client list
+      this.clients.update(data.username, socket.id)
+
+      console.log('match joined...')
+
+      // send message to socket client
       socket.emit('MATCH_JOINED', match)
-      // Messenger.publish('JOIN_MATCH', data)
+      // send message to other players
+      socket.to(roomId).emit('PLAYER_JOINED', match) // TODO: send new player data only
     }
 
     function startMatch (data) {
-      Messenger.publish('START_MATCH', data)
+      const match = Engine.startMatch(data)
+      if (typeof match === 'string') {
+        socket.emit('MATCH_START_FAILED', match)
+        return
+      }
+
+      this.io.in(roomId).emit('MATCH_STARTED', match)
     }
   }
 

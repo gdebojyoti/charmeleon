@@ -1,16 +1,16 @@
 class Client {
   constructor () {
-    this.clients = []
+    this._clients = []
   }
 
-  update (clientId, username) {
+  update (username, clientId) {
     if (!clientId || !username) {
       return
     }
 
-    const client = this.clients.find(client => client.username === username)
-    if (!client.length) {
-      this.clients.push({
+    const client = this._clients.find(client => client.username === username)
+    if (!client) {
+      this._clients.push({
         id: clientId,
         username
       })
@@ -20,7 +20,11 @@ class Client {
   }
 
   getClientIdByUsername (username) {
-    return this.clients.find(client => client.username === username)
+    return this._clients.find(client => client.username === username)
+  }
+
+  __fetchAllClients () {
+    return this._clients
   }
 }
 
