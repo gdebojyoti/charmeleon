@@ -156,6 +156,21 @@ class Match {
     this._updateTurn()
   }
 
+  // TODO: Find a better owner of this method; remove cards from players; create new field (match.cards) for player's cards only
+  getPublicFields () {
+    return {
+      id: this.id,
+      status: this.status,
+      players: this.players,
+      currentTurn: this.currentTurn,
+      host: this.host,
+      discardPile: this.discardPile,
+      order: this.order,
+      isReversed: this.isReversed,
+      lastCardData: this.lastCardData
+    }
+  }
+
   // private methods
 
   // detect player whose turn it is

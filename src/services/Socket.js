@@ -39,6 +39,9 @@ class Socket {
     // when a new player joins, inform everyone
     socket.on('JOIN_MATCH', joinMatch.bind(this))
 
+    // when an existing player tries to rejoin
+    socket.on('REJOIN_MATCH', rejoinMatch.bind(this))
+
     // when host clicks 'start match' button
     socket.on('START_MATCH', startMatch.bind(this))
 
@@ -82,6 +85,18 @@ class Socket {
       socket.emit('MATCH_JOINED', match)
       // send message to other players
       socket.to(roomId).emit('PLAYER_JOINED', match) // TODO: send new player data only
+    }
+
+    function rejoinMatch (data) {
+      const { username, matchId } = data
+      const match = Engine.getMatchDetails(matchId, username)
+
+      if (!match) {
+        // console.log('all matches', Engine.__fetchAllMatches())
+        socket.emit('MATCH_REJOIN_FAILED')
+      } else {
+        socket.emit('MATCH_REJOINED', match)
+      }
     }
 
     function startMatch (data) {

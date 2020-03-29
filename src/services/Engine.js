@@ -76,6 +76,24 @@ class Engine {
     return currentMatch
   }
 
+  static getMatchDetails (matchId, username) {
+    const match = matches.find(match => match.id === matchId)
+    if (!match) {
+      return
+    }
+
+    const player = match.players.find(player => player.username === username)
+    if (!player) {
+      return
+    }
+
+    return match.getPublicFields()
+  }
+
+  static __fetchAllMatches () {
+    return matches
+  }
+
   // private methods
 
   static _getCurrentMatch (matchId) {
