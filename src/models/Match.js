@@ -176,7 +176,7 @@ class Match {
   // detect player whose turn it is
   _getCurrentPlayer () {
     // TODO: Check if correct player took the turn
-    return this.players.find(player => player.id === this.currentTurn)
+    return this.players.find(player => player.username === this.currentTurn)
   }
 
   _updateTurn () {

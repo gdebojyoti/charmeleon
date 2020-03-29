@@ -3,24 +3,28 @@ class Client {
     this._clients = []
   }
 
-  update (username, clientId) {
-    if (!clientId || !username) {
+  update (username, socketId) {
+    if (!socketId || !username) {
       return
     }
 
     const client = this._clients.find(client => client.username === username)
     if (!client) {
       this._clients.push({
-        id: clientId,
+        id: socketId,
         username
       })
     } else {
-      client.id = clientId
+      client.id = socketId
     }
   }
 
-  getClientIdByUsername (username) {
+  getClientByUsername (username) {
     return this._clients.find(client => client.username === username)
+  }
+
+  getClientBySocketId (socketId) {
+    return this._clients.find(client => client.id === socketId)
   }
 
   __fetchAllClients () {

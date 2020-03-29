@@ -45,6 +45,15 @@ class Socket {
     // when host clicks 'start match' button
     socket.on('START_MATCH', startMatch.bind(this))
 
+    // when host clicks 'start match' button
+    socket.on('SELECT_CARD', selectCard.bind(this))
+
+    // when host clicks 'start match' button
+    socket.on('DRAW_CARD', drawCard.bind(this))
+
+    // when host clicks 'start match' button
+    socket.on('PASS_TURN', passTurn.bind(this))
+
     function hostMatch (data) { // data = { matchId, username }
       console.log('hosting match...', data)
 
@@ -88,15 +97,25 @@ class Socket {
     }
 
     function rejoinMatch (data) {
-      const { username, matchId } = data
-      const match = Engine.getMatchDetails(matchId, username)
+      const match = Engine.getMatchDetails(data.matchId, data.username)
 
       if (!match) {
         // console.log('all matches', Engine.__fetchAllMatches())
         socket.emit('MATCH_REJOIN_FAILED')
-      } else {
-        socket.emit('MATCH_REJOINED', match)
+        return
       }
+
+      // update room ID
+      matchId = data.matchId
+      roomId = `room-${matchId}`
+
+      // add player to room
+      socket.join(roomId)
+
+      // update client list
+      this.clients.update(data.username, socket.id)
+
+      socket.emit('MATCH_REJOINED', match)
     }
 
     function startMatch (data) {
@@ -107,6 +126,57 @@ class Socket {
       }
 
       this.io.in(roomId).emit('MATCH_STARTED', match)
+    }
+
+    function selectCard ({ index, options }) {
+      const { username } = this.clients.getClientBySocketId(socket.id) || {}
+      if (!username) {
+        socket.emit('CANNOT_PLAY_CARD', 'Player not found')
+        return
+      }
+
+      const details = Engine.cardPlayed({ username, matchId, index, options })
+      if (typeof details === 'string') {
+        console.warn('Cannot play card', details)
+        socket.emit('CANNOT_PLAY_CARD', details)
+        return
+      }
+
+      this.io.in(roomId).emit('CARD_PLAYED', details)
+    }
+
+    function drawCard () {
+      const { username } = this.clients.getClientBySocketId(socket.id) || {}
+      if (!username) {
+        console.warn('Player not found')
+        return
+      }
+
+      const details = Engine.drawCard({ username, matchId })
+      if (typeof details === 'string') {
+        console.warn('Cannot draw card', details)
+        socket.emit('CANNOT_DRAW_CARD', details)
+        return
+      }
+
+      this.io.in(roomId).emit('CARD_DRAWN', details)
+    }
+
+    function passTurn (data) {
+      const { username } = this.clients.getClientBySocketId(socket.id) || {}
+      if (!username) {
+        console.warn('Player not found')
+        return
+      }
+
+      const details = Engine.passTurn({ username, matchId })
+      if (typeof details === 'string') {
+        console.warn('Cannot pass turn', details)
+        socket.emit('CANNOT_PASS_TURN', details)
+        return
+      }
+
+      this.io.in(roomId).emit('TURN_PASSED', details)
     }
   }
 

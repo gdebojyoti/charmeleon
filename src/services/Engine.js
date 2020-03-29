@@ -76,6 +76,57 @@ class Engine {
     return currentMatch
   }
 
+  // check if it is correct player's turn; then attempt to play card
+  static cardPlayed ({ username, matchId, index, options }) {
+    const currentMatch = this._getCurrentMatch(matchId)
+    if (!currentMatch) {
+      return 'Match not found'
+    }
+
+    if (currentMatch.currentTurn !== username) {
+      return 'Not your turn bitch!'
+    }
+
+    const isPlayed = currentMatch.cardPlayed(index, options)
+    if (!isPlayed) {
+      return 'Not a valid choice'
+    }
+
+    return currentMatch
+  }
+
+  // check if it is correct player's turn; then attempt to draw card
+  static drawCard ({ username, matchId }) {
+    const currentMatch = this._getCurrentMatch(matchId)
+    if (!currentMatch) {
+      return 'Match not found'
+    }
+
+    if (currentMatch.currentTurn !== username) {
+      return 'Not your turn bitch!'
+    }
+
+    currentMatch.drawCard()
+
+    return currentMatch
+  }
+
+  // check if it is correct player's turn; then attempt to pass turn
+  static passTurn ({ username, matchId }) {
+    const currentMatch = this._getCurrentMatch(matchId)
+    if (!currentMatch) {
+      return 'Match not found'
+    }
+
+    if (currentMatch.currentTurn !== username) {
+      return 'Not your turn bitch!'
+    }
+
+    currentMatch.passTurn()
+
+    return currentMatch
+  }
+
   static getMatchDetails (matchId, username) {
     const match = matches.find(match => match.id === matchId)
     if (!match) {
