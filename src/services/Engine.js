@@ -53,9 +53,8 @@ class Engine {
       return 'Match is not in PREMATCH state'
     }
 
-    // Temp: add 2 extra players
-    this.joinMatch({ matchId, username: 'ron', name: 'Ron' })
-    this.joinMatch({ matchId, username: 'hermione', name: 'Hermione' })
+    // // Fake bot
+    // this.joinMatch({ matchId, username: 'ron', name: 'Ron' })
 
     // TODO: check if host ID matches
 
