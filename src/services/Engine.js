@@ -38,7 +38,7 @@ class Engine {
     return currentMatch
   }
 
-  static startMatch (data) {
+  static startMatch (data, username) {
     console.log('starting match via message...', data, this)
     const { matchId } = data
 
@@ -56,7 +56,11 @@ class Engine {
     // // Fake bot
     // this.joinMatch({ matchId, username: 'ron', name: 'Ron' })
 
-    // TODO: check if host ID matches
+    // check if host ID matches
+    if (currentMatch.host !== username) {
+      console.warn('Only host can start match')
+      return 'Only host can start match'
+    }
 
     // check if at least 2 players are there
     if (currentMatch.players.length < 2) {

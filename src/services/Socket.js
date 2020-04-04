@@ -119,7 +119,13 @@ class Socket {
     }
 
     function startMatch (data) {
-      const match = Engine.startMatch(data)
+      const { username } = this.clients.getClientBySocketId(socket.id) || {}
+      if (!username) {
+        socket.emit('MATCH_START_FAILED', 'Player does not exist')
+        return
+      }
+
+      const match = Engine.startMatch(data, username)
       if (typeof match === 'string') {
         socket.emit('MATCH_START_FAILED', match)
         return
