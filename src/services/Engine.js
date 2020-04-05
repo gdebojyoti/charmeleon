@@ -98,6 +98,10 @@ class Engine {
     return currentMatch
   }
 
+  static isGameOver (match) {
+    return match.isGameOver()
+  }
+
   // check if it is correct player's turn; then attempt to draw card
   static drawCard ({ username, matchId }) {
     const currentMatch = this._getCurrentMatch(matchId)

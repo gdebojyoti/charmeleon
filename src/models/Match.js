@@ -106,9 +106,11 @@ class Match {
     // process last card data (skip others' turns; make other players draw cards; etc)
     this._processLastCard()
 
-    this._checkForWin(player)
-
     return true
+  }
+
+  isGameOver () {
+    return this._checkForWinnerByNoCards()
   }
 
   drawCard () {
@@ -234,10 +236,15 @@ class Match {
     }
   }
 
-  _checkForWin (player) {
-    if (!player.cards.length) {
+  // return true if a player with no cards is found
+  _checkForWinnerByNoCards (player) {
+    const winner = this.players.find(player => player.cards.length === 0)
+    if (winner) {
       this.status = statusMap.COMPLETED
+      return true
     }
+
+    return false
   }
 }
 

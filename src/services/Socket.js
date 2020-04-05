@@ -149,6 +149,11 @@ class Socket {
       }
 
       this.io.in(roomId).emit('CARD_PLAYED', details)
+
+      const isGameOver = Engine.isGameOver(details)
+      if (isGameOver) {
+        this.io.in(roomId).emit('GAME_OVER')
+      }
     }
 
     function drawCard () {
