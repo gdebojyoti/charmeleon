@@ -11,8 +11,9 @@ const statusMap = {
 
 class Match {
   constructor (data) {
-    const { id } = data
+    const { id, code } = data
     this.id = id
+    this.code = code
     this.status = statusMap.PREMATCH
     this.players = []
     this.currentTurn = 0 // ID of player whose turn it currently is
@@ -162,6 +163,7 @@ class Match {
   getPublicFields () {
     return {
       id: this.id,
+      code: this.code,
       status: this.status,
       players: this.players,
       currentTurn: this.currentTurn,
@@ -240,7 +242,8 @@ class Match {
   _checkForWinnerByNoCards (player) {
     const winner = this.players.find(player => player.cards.length === 0)
     if (winner) {
-      this.status = statusMap.COMPLETED
+      this.status = statusMap.COMPLETED // update status
+      this.code = '' // reset match code
       return true
     }
 

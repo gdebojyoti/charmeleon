@@ -4,32 +4,32 @@ import cards from '../data/cards'
 const matches = [] // list of all matches played since server was started / restarted
 
 class Engine {
-  static hostMatch ({ username, name }) {
-    // const matchId = new Date().getTime().toString().substr(-4)
-    const matchId = 31291
+  static hostMatch ({ username, name, matchId: matchIdProp = '' }) {
+    const matchId = matchIdProp || `t-${new Date().getTime().toString().substr(0, 10)}`
+    // const code = new Date().getTime().toString().substr(-6)
+    const code = '31291'
 
     const match = new Match({
-      id: matchId
+      id: matchId,
+      code
     })
 
     match.addHost({ username, name })
 
     matches.push(match)
 
-    console.log('hosting game directly')
-
-    return matchId
+    return match
   }
 
-  static joinMatch ({ matchId, username, name }) {
-    if (!matchId) {
-      console.warn('Match ID is missing')
+  static joinMatch ({ code, username, name }) {
+    if (!code) {
+      console.warn('Match code is missing')
       return
     }
 
-    const currentMatch = matches.find(match => match.id === matchId)
+    const currentMatch = matches.find(match => match.code === code)
     if (!currentMatch) {
-      console.warn(`No match found with specified ID: "${matchId}"`)
+      console.warn(`No match found with specified code: "${code}"`)
       return
     }
 
@@ -39,7 +39,6 @@ class Engine {
   }
 
   static startMatch (data, username) {
-    console.log('starting match via message...', data, this)
     const { matchId } = data
 
     const currentMatch = this._getCurrentMatch(matchId)
@@ -54,7 +53,7 @@ class Engine {
     }
 
     // // Fake bot
-    // this.joinMatch({ matchId, username: 'ron', name: 'Ron' })
+    // this.joinMatch({ code: 31291, username: 'ron', name: 'Ron' })
 
     // check if host ID matches
     if (currentMatch.host !== username) {
@@ -77,6 +76,23 @@ class Engine {
 
     // trigger message to all clients
     return currentMatch
+  }
+
+  static getRestartMatchDetails (matchId) {
+    const parts = matchId.split('__')
+
+    let nextMatchId = ''
+
+    if (!parts[1]) {
+      nextMatchId = `${matchId}__1`
+    } else {
+      nextMatchId = `${parts[0]}__${parseInt(parts[1]) + 1}`
+    }
+
+    return {
+      nextMatchId,
+      match: matches.find(match => match.id === nextMatchId)
+    }
   }
 
   // check if it is correct player's turn; then attempt to play card

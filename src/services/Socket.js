@@ -54,12 +54,40 @@ class Socket {
     // when host clicks 'start match' button
     socket.on('PASS_TURN', passTurn.bind(this))
 
-    function hostMatch (data) { // data = { matchId, username }
-      console.log('hosting match...', data)
+    // when user clicks 'Rematch' button in post game screen
+    socket.on('REMATCH', rematch.bind(this))
+
+    function rematch (data) { // data = { matchId, username, name }
+      const { nextMatchId, match } = Engine.getRestartMatchDetails(data.matchId)
+
+      // leave previous room
+      if (roomId) {
+        socket.leave(roomId)
+      }
+
+      if (match) {
+        joinMatch.call(this, {
+          username: data.username,
+          name: data.name,
+          code: match.code
+        })
+      } else {
+        hostMatch.call(this, {
+          username: data.username,
+          name: data.name,
+          matchId: nextMatchId
+        })
+      }
+    }
+
+    function hostMatch (data) { // data = { username, name }
+      const match = Engine.hostMatch(data)
 
       // update match & room ID if player is hosting match
-      matchId = Engine.hostMatch(data)
+      matchId = match.id
       roomId = `room-${matchId}`
+
+      console.log('match hosted...', roomId)
 
       // add player to room
       socket.join(roomId)
@@ -68,10 +96,10 @@ class Socket {
       this.clients.update(data.username, socket.id)
 
       // send message to socket client
-      socket.emit('MATCH_HOSTED', matchId)
+      socket.emit('MATCH_HOSTED', match)
     }
 
-    function joinMatch (data) { // data = { matchId, username }
+    function joinMatch (data) { // data = { username, name, code }
       const match = Engine.joinMatch(data)
       if (!match) {
         socket.emit('MATCH_JOIN_FAILED')
@@ -79,7 +107,7 @@ class Socket {
       }
 
       // update match & room ID if player is joining match
-      matchId = data.matchId
+      matchId = match.id
       roomId = `room-${matchId}`
 
       // add player to room
@@ -88,7 +116,7 @@ class Socket {
       // update client list
       this.clients.update(data.username, socket.id)
 
-      console.log('match joined...')
+      console.log('match joined...', roomId)
 
       // send message to socket client
       socket.emit('MATCH_JOINED', match)
