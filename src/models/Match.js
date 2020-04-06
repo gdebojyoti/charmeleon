@@ -70,6 +70,9 @@ class Match {
 
     // set match status to LIVE
     this.status = statusMap.LIVE
+
+    // remove match code (prevents others from joining)
+    this.code = ''
   }
 
   cardPlayed (index, playerOptions = {}) {
