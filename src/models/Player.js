@@ -8,6 +8,11 @@ class Player {
     this.canDraw = true
     this.canPass = false
 
+    // TODO: temporary solution
+    if (username === 'debojyoti') {
+      this.borderId = 1
+    }
+
     // client specific
     this.c_isHost = false
     this.c_isTurn = false
