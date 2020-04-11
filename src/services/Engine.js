@@ -1,6 +1,8 @@
 import Match from '../models/Match'
 import cards from '../data/cards'
 
+import { shuffle } from '../utilities/general'
+
 const matches = [] // list of all matches played since server was started / restarted
 
 class Engine {
@@ -39,7 +41,7 @@ class Engine {
   }
 
   static startMatch (data, username) {
-    const { matchId } = data
+    const { matchId, dev = false } = data
 
     const currentMatch = this._getCurrentMatch(matchId)
     if (!currentMatch) {
@@ -67,9 +69,14 @@ class Engine {
       return 'At least 2 players are needed'
     }
 
-    // assign cards to players
-    // currentMatch.assignCards(shuffle(cards))
-    currentMatch.assignCards(cards)
+    // shuffle cards & assign them to players
+    if (dev) {
+      // TODO: remove this option later; do not shuffle cards if dev=true in client URL
+      console.warn('Assigning non-shuffled cards (dev mode)')
+      currentMatch.assignCards(cards)
+    } else {
+      currentMatch.assignCards(shuffle(cards))
+    }
 
     // start match
     currentMatch.start()

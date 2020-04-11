@@ -1,5 +1,5 @@
 // Shuffle items of array | https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-export function shuffleArray (data) {
+export function shuffle (data) {
   const array = [...data]
   let currentIndex = array.length
   let temporaryValue
