@@ -57,28 +57,8 @@ class Socket {
     // when user clicks 'Rematch' button in post game screen
     socket.on('REMATCH', rematch.bind(this))
 
-    function rematch (data) { // data = { matchId, username, name }
-      const { nextMatchId, match } = Engine.getRestartMatchDetails(data.matchId)
-
-      // leave previous room
-      if (roomId) {
-        socket.leave(roomId)
-      }
-
-      if (match) {
-        joinMatch.call(this, {
-          username: data.username,
-          name: data.name,
-          code: match.code
-        })
-      } else {
-        hostMatch.call(this, {
-          username: data.username,
-          name: data.name,
-          matchId: nextMatchId
-        })
-      }
-    }
+    // when user leaves match
+    socket.on('LEAVE_MATCH', leaveMatch.bind(this))
 
     function hostMatch (data) { // data = { username, name }
       const match = Engine.hostMatch(data)
@@ -216,6 +196,41 @@ class Socket {
       }
 
       this.io.in(roomId).emit('TURN_PASSED', details)
+    }
+
+    function rematch (data) { // data = { matchId, username, name }
+      const { nextMatchId, match } = Engine.getRestartMatchDetails(data.matchId)
+
+      // leave previous room
+      if (roomId) {
+        socket.leave(roomId)
+      }
+
+      if (match) {
+        joinMatch.call(this, {
+          username: data.username,
+          name: data.name,
+          code: match.code
+        })
+      } else {
+        hostMatch.call(this, {
+          username: data.username,
+          name: data.name,
+          matchId: nextMatchId
+        })
+      }
+    }
+
+    function leaveMatch (matchId) {
+      const { username } = this.clients.getClientBySocketId(socket.id) || {}
+
+      const match = Engine.removePlayer(matchId, username)
+
+      if (match) {
+        console.log('a player has left')
+        // send message to other players
+        socket.to(roomId).emit('PLAYER_LEFT', { match, username }) // TODO: send new player data only
+      }
     }
   }
 

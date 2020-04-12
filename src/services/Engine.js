@@ -171,6 +171,16 @@ class Engine {
     return match.getPublicFields()
   }
 
+  static removePlayer (matchId, username) {
+    const match = matches.find(match => match.id === matchId)
+    if (!match) {
+      return
+    }
+
+    // remove player details from: players, order, currentTurn
+    return match.removePlayer(username)
+  }
+
   static __fetchAllMatches () {
     return matches
   }

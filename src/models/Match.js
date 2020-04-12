@@ -1,13 +1,7 @@
 import Player from '../models/Player'
 
+import statusMap from '../constants/matchStatus'
 import { checkCard } from '../utilities/card'
-
-const statusMap = {
-  PREMATCH: 'PREMATCH',
-  LIVE: 'LIVE',
-  COMPLETED: 'COMPLETED',
-  ABANDONED: 'ABANDONED'
-}
 
 class Match {
   constructor (data) {
@@ -162,6 +156,36 @@ class Match {
     this._updateTurn()
   }
 
+  removePlayer (username) {
+    const player = this.players.find(player => player.username === username)
+    if (!player) {
+      return
+    }
+
+    // remove from players list
+    this.players = this.players.filter(player => player.username !== username)
+
+    // update currentTurn if needed
+    if (this.currentTurn === username) {
+      this._updateTurn()
+    }
+
+    // remove from order list
+    this.order.splice(this.order.indexOf(username), 1)
+
+    // update host if needed
+    if (this.host === username) {
+      this.host = this.order[0]
+    }
+
+    // set match status to ABANDONED if needed
+    if (this.players.length === 1 && this.status === statusMap.LIVE) {
+      this.status = statusMap.ABANDONED
+    }
+
+    return this
+  }
+
   // TODO: Find a better owner of this method; remove cards from players; create new field (match.cards) for player's cards only
   getPublicFields () {
     return {
@@ -187,7 +211,7 @@ class Match {
   }
 
   _updateTurn () {
-    console.log('order', this.order)
+    console.log('Updating turn; order', this.order)
     const index = this.order.indexOf(this.currentTurn)
 
     if (this.isReversed) {
