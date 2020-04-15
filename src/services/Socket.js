@@ -142,14 +142,14 @@ class Socket {
       this.io.in(roomId).emit('MATCH_STARTED', match)
     }
 
-    function selectCard ({ index, options }) {
+    function selectCard ({ id, options }) {
       const { username } = this.clients.getClientBySocketId(socket.id) || {}
       if (!username) {
         socket.emit('CANNOT_PLAY_CARD', 'Player not found')
         return
       }
 
-      const details = Engine.cardPlayed({ username, matchId, index, options })
+      const details = Engine.cardPlayed({ username, matchId, id, options })
       if (typeof details === 'string') {
         console.warn('Cannot play card', details)
         socket.emit('CANNOT_PLAY_CARD', details)

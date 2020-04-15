@@ -103,7 +103,7 @@ class Engine {
   }
 
   // check if it is correct player's turn; then attempt to play card
-  static cardPlayed ({ username, matchId, index, options }) {
+  static cardPlayed ({ username, matchId, id, options }) {
     const currentMatch = this._getCurrentMatch(matchId)
     if (!currentMatch) {
       return 'Match not found'
@@ -113,7 +113,7 @@ class Engine {
       return 'Not your turn bitch!'
     }
 
-    const isPlayed = currentMatch.cardPlayed(index, options)
+    const isPlayed = currentMatch.cardPlayed(id, options)
     if (!isPlayed) {
       return 'Not a valid choice'
     }

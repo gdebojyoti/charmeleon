@@ -3,6 +3,7 @@
 import { cardTypes } from '../constants'
 
 const cards = []
+let index = 0
 
 const colors = [
   'RED', 'BLUE', 'YELLOW', 'GREEN'
@@ -10,13 +11,14 @@ const colors = [
 ]
 
 const actionNames = [
-  'WILD_DRAW_FOUR', 'WILD', 'DRAW_TWO', 'SKIP', 'REVERSE'
-  // 'WILD_DRAW_FOUR', 'WILD', 'DRAW_TWO', 'SKIP', 'REVERSE', 'MEGA_BLOCK'
+  'DRAW_TWO', 'SKIP', 'REVERSE', 'WILD_DRAW_FOUR', 'WILD'
+  // 'DRAW_TWO', 'SKIP', 'REVERSE', 'WILD_DRAW_FOUR', 'WILD', 'MEGA_BLOCK'
 ]
 
 for (let i = 0; i < 10; i++) {
   colors.forEach(color => {
     cards.push({
+      id: ++index,
       type: cardTypes.NUMBER,
       name: i,
       value: i,
@@ -28,6 +30,7 @@ for (let i = 0; i < 10; i++) {
 actionNames.forEach(name => {
   colors.forEach(color => {
     cards.push({
+      id: ++index,
       type: cardTypes.ACTION,
       name,
       value: 20,
