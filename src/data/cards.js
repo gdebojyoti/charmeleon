@@ -50,7 +50,8 @@ wildActionNames.forEach(name => {
       id: ++index,
       type: cardTypes.ACTION,
       name,
-      value: 20
+      value: 20,
+      color // default color; required when first card is a wild card
     })
   })
 })
