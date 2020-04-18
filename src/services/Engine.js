@@ -103,6 +103,10 @@ class Engine {
     }
   }
 
+  static getAllCards () {
+    return cards
+  }
+
   // check if it is correct player's turn; then attempt to play card
   static cardPlayed ({ username, matchId, id, options }) {
     const currentMatch = this._getCurrentMatch(matchId)

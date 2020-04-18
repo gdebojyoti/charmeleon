@@ -77,6 +77,8 @@ class Socket {
 
       // send message to socket client
       socket.emit('MATCH_HOSTED', match)
+      // send list of all cards to client
+      socket.emit('ALL_CARDS', Engine.getAllCards())
     }
 
     function joinMatch (data) { // data = { username, name, code }
@@ -100,6 +102,8 @@ class Socket {
 
       // send message to socket client
       socket.emit('MATCH_JOINED', match)
+      // send list of all cards to client
+      socket.emit('ALL_CARDS', Engine.getAllCards())
       // send message to other players
       socket.to(roomId).emit('PLAYER_JOINED', match) // TODO: send new player data only
     }
@@ -124,6 +128,8 @@ class Socket {
       this.clients.update(data.username, socket.id)
 
       socket.emit('MATCH_REJOINED', match)
+      // send list of all cards to client
+      socket.emit('ALL_CARDS', Engine.getAllCards())
     }
 
     function startMatch (data) {
