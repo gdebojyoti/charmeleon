@@ -18,7 +18,7 @@ class Socket {
   // core methods
 
   _onConnection (socket) {
-    console.log('new connection...', socket.id, this.matches)
+    console.log('new connection...', socket.id)
 
     let matchId = null
     let roomId = null
@@ -79,6 +79,8 @@ class Socket {
       socket.emit('MATCH_HOSTED', match)
       // send list of all cards to client
       socket.emit('ALL_CARDS', Engine.getAllCards())
+
+      this.matches.push(match)
     }
 
     function joinMatch (data) { // data = { username, name, code }
@@ -242,7 +244,10 @@ class Socket {
 
   // public methods
 
-  triggerClientMessage (msg, data) {}
+  // get an array of all active matches
+  getMatches () {
+    return this.matches
+  }
 }
 
 export default Socket
