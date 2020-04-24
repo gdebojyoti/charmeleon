@@ -6,10 +6,11 @@ import { shuffle } from '../utilities/general'
 const matches = [] // list of all matches played since server was started / restarted
 
 class Engine {
-  static hostMatch ({ username, name, matchId: matchIdProp = '' }) {
+  static hostMatch ({ username, name, matchId: matchIdProp = '', debug = false }) {
     const matchId = matchIdProp || `t-${new Date().getTime().toString().substr(0, 10)}`
-    // const code = new Date().getTime().toString().substr(-6)
-    const code = '31291'
+
+    // code is '31291' if debug=true in client URL; else generate random code
+    const code = debug ? '31291' : new Date().getTime().toString().substr(-6)
 
     const match = new Match({
       id: matchId,
@@ -41,7 +42,7 @@ class Engine {
   }
 
   static startMatch (data, username) {
-    const { matchId, dev = false } = data
+    const { matchId, debug = false } = data
 
     const currentMatch = this._getCurrentMatch(matchId)
     if (!currentMatch) {
@@ -70,9 +71,9 @@ class Engine {
     }
 
     // shuffle cards & assign them to players
-    if (dev) {
-      // TODO: remove this option later; do not shuffle cards if dev=true in client URL
-      console.warn('Assigning non-shuffled cards (dev mode)')
+    if (debug) {
+      // do not shuffle cards if debug=true in client URL
+      console.warn('Assigning non-shuffled cards (developer mode)')
       currentMatch.assignCards(cards)
     } else {
       currentMatch.assignCards(shuffle(cards))
@@ -102,8 +103,12 @@ class Engine {
     }
   }
 
+  static getAllCards () {
+    return cards
+  }
+
   // check if it is correct player's turn; then attempt to play card
-  static cardPlayed ({ username, matchId, index, options }) {
+  static cardPlayed ({ username, matchId, id, options }) {
     const currentMatch = this._getCurrentMatch(matchId)
     if (!currentMatch) {
       return 'Match not found'
@@ -113,7 +118,7 @@ class Engine {
       return 'Not your turn bitch!'
     }
 
-    const isPlayed = currentMatch.cardPlayed(index, options)
+    const isPlayed = currentMatch.cardPlayed(id, options)
     if (!isPlayed) {
       return 'Not a valid choice'
     }

@@ -69,15 +69,17 @@ class Match {
     this.code = ''
   }
 
-  cardPlayed (index, playerOptions = {}) {
+  cardPlayed (id, playerOptions = {}) {
     const player = this._getCurrentPlayer()
     if (!player) {
       return
     }
 
     // check if card exists
-    if (player.cards.length <= index) {
+    const index = player.cards.findIndex(card => card.id === id)
+    if (index === -1) {
       console.warn('Card not found')
+      return
     }
 
     // check if card matches last card (by color, number or type)

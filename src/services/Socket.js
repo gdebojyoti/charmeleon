@@ -18,7 +18,7 @@ class Socket {
   // core methods
 
   _onConnection (socket) {
-    console.log('new connection...', socket.id, this.matches)
+    console.log('new connection...', socket.id)
 
     let matchId = null
     let roomId = null
@@ -77,6 +77,10 @@ class Socket {
 
       // send message to socket client
       socket.emit('MATCH_HOSTED', match)
+      // send list of all cards to client
+      socket.emit('ALL_CARDS', Engine.getAllCards())
+
+      this.matches.push(match)
     }
 
     function joinMatch (data) { // data = { username, name, code }
@@ -100,6 +104,8 @@ class Socket {
 
       // send message to socket client
       socket.emit('MATCH_JOINED', match)
+      // send list of all cards to client
+      socket.emit('ALL_CARDS', Engine.getAllCards())
       // send message to other players
       socket.to(roomId).emit('PLAYER_JOINED', match) // TODO: send new player data only
     }
@@ -124,6 +130,8 @@ class Socket {
       this.clients.update(data.username, socket.id)
 
       socket.emit('MATCH_REJOINED', match)
+      // send list of all cards to client
+      socket.emit('ALL_CARDS', Engine.getAllCards())
     }
 
     function startMatch (data) {
@@ -142,14 +150,14 @@ class Socket {
       this.io.in(roomId).emit('MATCH_STARTED', match)
     }
 
-    function selectCard ({ index, options }) {
+    function selectCard ({ id, options }) {
       const { username } = this.clients.getClientBySocketId(socket.id) || {}
       if (!username) {
         socket.emit('CANNOT_PLAY_CARD', 'Player not found')
         return
       }
 
-      const details = Engine.cardPlayed({ username, matchId, index, options })
+      const details = Engine.cardPlayed({ username, matchId, id, options })
       if (typeof details === 'string') {
         console.warn('Cannot play card', details)
         socket.emit('CANNOT_PLAY_CARD', details)
@@ -236,7 +244,10 @@ class Socket {
 
   // public methods
 
-  triggerClientMessage (msg, data) {}
+  // get an array of all active matches
+  getMatches () {
+    return this.matches
+  }
 }
 
 export default Socket

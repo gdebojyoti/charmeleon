@@ -2,7 +2,7 @@ import express from 'express'
 import path from 'path'
 
 import Socket from './services/Socket'
-import Engine from './services/Engine'
+import Routes from './routes'
 
 (function () {
   'use strict'
@@ -11,9 +11,15 @@ import Engine from './services/Engine'
   const INDEX = path.join(__dirname, 'index.html')
 
   const server = express()
-    .use((req, res) => res.sendFile(INDEX))
-    .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
-  const socket = new Socket(server)
-  const engine = new Engine(socket) // TODO: fix this warning
+  const socketHook = server.listen(PORT, () => console.log(`Listening on ${PORT}`))
+
+  const socket = new Socket(socketHook)
+
+  const routes = new Routes(socket)
+  server.get('/', routes.getDefault)
+  server.get('/matches', (req, res) => routes.getActiveMatches(req, res))
+  server.get('/findMatchIdByCode/:code', (req, res) => routes.getMatchIdByCode(req, res))
+
+  server.use((req, res) => res.sendFile(INDEX))
 })()
